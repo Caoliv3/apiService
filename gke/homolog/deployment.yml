@@ -1,0 +1,158 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: protesto-aquisicao-hml
+  labels:
+    name: protesto-aquisicao-hml
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pa-api-tubo-sp-hml-configmap
+  namespace: protesto-aquisicao-hml
+data:
+  URL_ENDPOINT_INSTITUTO: https://homologcra.protesto.com.br:443/cra/webservice/cip.php
+  URL_ENDPOINT: https://iapi-hml-tubosp.bvsnet.com.br/tubosp
+  TOKEN_NAME: homolog
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pa-api-tubo-sp-hml
+  namespace: protesto-aquisicao-hml
+spec:
+  selector:
+    matchLabels:
+      app: pa-api-tubo-sp-hml
+  #replicas: 2
+  template:
+    metadata:
+      labels:
+        app: pa-api-tubo-sp-hml
+        squad: protesto-aquisicao
+        type: batch
+        value-stream: data
+        environment: homolog
+    spec:
+      containers:
+      - name: pa-api-tubo-sp-hml
+        image: gcr.io/bvs-main-98cb/pa-api-tubo-sp-hml
+        resources:
+          requests:
+            memory: "300Mi"
+            cpu: "500m"
+          limits:
+            memory: "500Mi"
+            cpu: "700m"
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: pa-api-tubo-sp-hml-configmap
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: pa-secret-db-tubo-sp-hml
+              key: username
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: pa-secret-db-tubo-sp-hml
+              key: password
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: pa-secret-db-tubo-sp-hml
+              key: database_private_ip
+        - name: LOGIN_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: pa-secret-db-tubo-sp-hml
+              key: login_endpoint
+        - name: PASSWD_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: pa-secret-db-tubo-sp-hml
+              key: passwd_endpoint
+        - name: TOKEN_API
+          valueFrom:
+            secretKeyRef:
+              name: pa-secret-db-tubo-sp-hml
+              key: token_api
+        - name: USERNAME_INSTITUTO_SP
+          valueFrom:
+            secretKeyRef:
+              name: pa-secret-db-tubo-sp-hml
+              key: username_instituto_sp
+        - name: PASSWD_INSTITUTO_SP
+          valueFrom:
+            secretKeyRef:
+              name: pa-secret-db-tubo-sp-hml
+              key: passwd_instituto_sp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pa-api-tubo-sp-hml
+  namespace: protesto-aquisicao-hml
+spec:
+  ports:
+  - name: http    
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: pa-api-tubo-sp-hml
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: pa-ingress-interno-tubo-sp-hml
+  namespace: protesto-aquisicao-hml
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "180"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "180"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "180"
+spec:
+  rules:
+  - host: iapi-hml-tubosp.bvsnet.com.br
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: pa-api-tubo-sp-hml
+          servicePort: 80
+  tls:
+  - hosts:
+    - iapi-hml-tubosp.bvsnet.com.br
+    secretName: pa-bvsnet-tls-hml
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pa-hpa-interno-tubo-sp-hml
+  namespace: protesto-aquisicao-hml
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pa-api-tubo-sp-hml
+  minReplicas: 10
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: AverageValue
+          averageValue: 400Mi

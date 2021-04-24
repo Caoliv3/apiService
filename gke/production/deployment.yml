@@ -1,0 +1,194 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: protesto-aquisicao-prod
+  labels:
+    name: protesto-aquisicao-prod
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: apm-server-apm-token 
+  namespace: protesto-aquisicao-prod
+type: Opaque
+data:
+  secret-token: Vm5KUFM4S29qT1JnYnNXT2xI
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pa-api-tubo-sp-prod-configmap
+  namespace: protesto-aquisicao-prod
+data:
+  URL_ENDPOINT_INSTITUTO: https://www.protesto.com.br:443/cra/webservice/cip.php
+  URL_ENDPOINT: https://iapi-prod-tubosp.bvsnet.com.br/tubosp
+  TOKEN_NAME: production
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pa-api-tubo-sp-prod
+  namespace: protesto-aquisicao-prod
+spec:
+  selector:
+    matchLabels:
+      app: pa-api-tubo-sp-prod
+  template:
+    metadata:
+      labels:
+        app: pa-api-tubo-sp-prod
+        squad: protesto-aquisicao
+        type: api
+        value-stream: data
+        environment: production
+        elastic-logs: "true"
+    spec:
+      volumes:
+      - name: elastic-apm-agent 
+        emptyDir: {}
+      initContainers: 
+      - name: elastic-java-agent 
+        image: docker.elastic.co/observability/apm-agent-java:1.12.0 
+        volumeMounts: 
+        - mountPath: /elastic/apm/agent 
+          name: elastic-apm-agent 
+        command: ['cp', '-v', '/usr/agent/elastic-apm-agent.jar', '/elastic/apm/agent']
+      containers:
+      - name: pa-api-tubo-sp-prod
+        image: gcr.io/bvs-main-98cb/pa-api-tubo-sp-prod
+        resources:
+          requests:
+            memory: "1000Mi"
+            cpu: "400m"
+          limits:
+            memory: "2000Mi"
+            cpu: "800m"
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: elastic-apm-agent 
+          mountPath: /elastic/apm/agent
+        envFrom:
+        - configMapRef:
+            name: pa-api-tubo-sp-prod-configmap
+        env:
+        - name: ELASTIC_APM_SERVER_URL 
+          value: "https://c4242512770541679d1485ae8b885f63.bvsnet.com.br:9243" 
+        - name: ELASTIC_APM_SERVICE_NAME 
+          value: "pa-tubo-sp" 
+        - name: ELASTIC_APM_APPLICATION_PACKAGES 
+          value: "br.com.tubosp.*" 
+        - name: ELASTIC_APM_ENVIRONMENT 
+          value: prod 
+        - name: ELASTIC_APM_LOG_LEVEL 
+          value: ERROR 
+        - name: ELASTIC_APM_SECRET_TOKEN 
+          valueFrom: 
+            secretKeyRef: 
+              name: apm-server-apm-token 
+              key: secret-token
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: pa-secret-db-tubo-sp-prod
+              key: username
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: pa-secret-db-tubo-sp-prod
+              key: password
+        - name: DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: pa-secret-db-tubo-sp-prod
+              key: database_private_ip
+        - name: LOGIN_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: pa-secret-db-tubo-sp-prod
+              key: login_endpoint
+        - name: PASSWD_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: pa-secret-db-tubo-sp-prod
+              key: passwd_endpoint
+        - name: TOKEN_API
+          valueFrom:
+            secretKeyRef:
+              name: pa-secret-db-tubo-sp-prod
+              key: token_api
+        - name: USERNAME_INSTITUTO_SP
+          valueFrom:
+            secretKeyRef:
+              name: pa-secret-db-tubo-sp-prod
+              key: username_instituto_sp
+        - name: PASSWD_INSTITUTO_SP
+          valueFrom:
+            secretKeyRef:
+              name: pa-secret-db-tubo-sp-prod
+              key: passwd_instituto_sp
+        - name: JAVA_TOOL_OPTIONS 
+          value: -javaagent:/elastic/apm/agent/elastic-apm-agent.jar
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pa-api-tubo-sp-prod
+  namespace: protesto-aquisicao-prod
+spec:
+  ports:
+  - name: http    
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: pa-api-tubo-sp-prod
+  type: ClusterIP
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: pa-ingress-interno-tubo-sp-prod
+  namespace: protesto-aquisicao-prod
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: iapi-prod-tubosp.bvsnet.com.br
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: pa-api-tubo-sp-prod
+          servicePort: 80
+  tls:
+  - hosts:
+    - iapi-prod-tubosp.bvsnet.com.br
+    secretName: pa-bvsnet-tls-prod
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pa-hpa-interno-tubo-sp-prod
+  namespace: protesto-aquisicao-prod
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pa-api-tubo-sp-prod
+  minReplicas: 10
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: AverageValue
+          averageValue: 1G
