@@ -12,7 +12,7 @@ import java.sql.SQLException;
 
 @Component
 @Slf4j
-@Profile("hml,!test")
+@Profile("hml")
 public class DataSourceConfigurationHomolog implements DataSourceConfiguration {
 
     private HikariConfig config;

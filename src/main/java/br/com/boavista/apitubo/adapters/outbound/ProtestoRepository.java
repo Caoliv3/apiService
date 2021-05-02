@@ -184,9 +184,9 @@ public class ProtestoRepository implements ProtestoPort {
             conn.setAutoCommit(false);
             conn.setTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             salvarAuditoria(this.auditoria);
-            if (this.detalheProtestos != null) {
-                salvarDetalheProtesto(detalheProtestos);
-            }
+//            if (this.detalheProtestos != null) {
+//                salvarDetalheProtesto(detalheProtestos);
+//            }
             conn.commit();
         } catch (Exception e) {
             try {

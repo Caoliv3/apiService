@@ -67,38 +67,38 @@ public class ConsultaSoapAdapter implements ConsultaPort {
         ConsultaDetalhadaResponse response = new ConsultaDetalhadaResponse();
         response.setSuccess(true);
 
-        response.getTitulos().add(Titulo.builder()
-                .tipo_documento_devedor("1")
-                .documento_devedor("43131896884")
-                .cod_cartorio("00996109005")
-                .valor_protestado("500.00")
-                .especie("DMI")
-                .uf_devedor("SP")
-                .data_vencimento("15-02-2020")
-                .data_protesto("18-02-2020")
-                .build());
-
-        response.getTitulos().add(Titulo.builder()
-                .tipo_documento_devedor("1")
-                .documento_devedor("43131896884")
-                .cod_cartorio("00996109005")
-                .valor_protestado("400.00")
-                .especie("DM")
-                .uf_devedor("SP")
-                .data_vencimento("25-01-2019")
-                .data_protesto("28-01-2019")
-                .build());
-        response.getTitulos().add(Titulo.builder()
-                .tipo_documento_devedor("1")
-                .documento_devedor("43131896884")
-                .cod_cartorio("00996109003")
-                .valor_protestado("300.00")
-                .nome_devedor("Valdimara Santos")
-                .especie("DM")
-                .uf_devedor("SP")
-                .data_vencimento("15-05-2017")
-                .data_protesto("17-05-2017")
-                .build());
+//        response.getTitulos().add(Titulo.builder()
+//                .tipo_documento_devedor("1")
+//                .documento_devedor("43131896884")
+//                .cod_cartorio("00996109005")
+//                .valor_protestado("500.00")
+//                .especie("DMI")
+//                .uf_devedor("SP")
+//                .data_vencimento("15-02-2020")
+//                .data_protesto("18-02-2020")
+//                .build());
+//
+//        response.getTitulos().add(Titulo.builder()
+//                .tipo_documento_devedor("1")
+//                .documento_devedor("43131896884")
+//                .cod_cartorio("00996109005")
+//                .valor_protestado("400.00")
+//                .especie("DM")
+//                .uf_devedor("SP")
+//                .data_vencimento("25-01-2019")
+//                .data_protesto("28-01-2019")
+//                .build());
+//        response.getTitulos().add(Titulo.builder()
+//                .tipo_documento_devedor("1")
+//                .documento_devedor("43131896884")
+//                .cod_cartorio("00996109003")
+//                .valor_protestado("300.00")
+//                .nome_devedor("Valdimara Santos")
+//                .especie("DM")
+//                .uf_devedor("SP")
+//                .data_vencimento("15-05-2017")
+//                .data_protesto("17-05-2017")
+//                .build());
 
         return response;
     }

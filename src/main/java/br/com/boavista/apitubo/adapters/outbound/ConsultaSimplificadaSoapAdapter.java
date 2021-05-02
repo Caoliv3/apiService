@@ -56,19 +56,35 @@ public class ConsultaSimplificadaSoapAdapter implements ConsultaSimplificada {
 				.tipoDocumento(filtro.getTipoDocumento())
 				.documento(filtro.getDocumento())
 				.idCartorioBoavista("00996109005")
-				.quantidadeProtestos("2")
-				.valorProtestado("900.00")
+				.quantidadeProtestos("7808")
+				.valorProtestado("34321961.85")
 				.build());
 		resposta.getProtestos().add(Protesto.builder()
 				.tipoDocumento(filtro.getTipoDocumento())
 				.documento(filtro.getDocumento())
-				.idCartorioBoavista("00996109003")
-				.quantidadeProtestos("1")
-				.valorProtestado("300.00")
+				.idCartorioBoavista("00996291016")
+				.quantidadeProtestos("4")
+				.valorProtestado("8164.12")
+				.build());
+		resposta.getProtestos().add(Protesto.builder()
+				.tipoDocumento(filtro.getTipoDocumento())
+				.documento(filtro.getDocumento())
+				.idCartorioBoavista("00996291024")
+				.quantidadeProtestos("2")
+				.valorProtestado("6081.30")
+				.build());
+		resposta.getProtestos().add(Protesto.builder()
+				.tipoDocumento(filtro.getTipoDocumento())
+				.documento(filtro.getDocumento())
+				.idCartorioBoavista("00996291032")
+				.quantidadeProtestos("6")
+				.valorProtestado("26591.20")
 				.build());
 
 		return  resposta;
 	}
+
+
 
 	public ConsultaSimplificadaResponse fillFrom(ConsultaSimplificadaResponse response, ConsultaSOAP consulta, ConsultaSimplificadaFiltro filtro){
 		ConsultaSimplificadaResponse retorno = response;

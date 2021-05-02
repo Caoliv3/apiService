@@ -17,25 +17,15 @@ import java.sql.SQLException;
 public class DataSourceConfigurationDevelopTest implements DataSourceConfigurationTest {
     private HikariConfig config;
     private HikariDataSource ds;
-//    @Value("${service.apitubo.protestos.servidor}")
-//    private String servidor;
-//    @Value("${service.apitubo.protestos.usuario}")
-//    private String usuario;
-//    @Value("${service.apitubo.protestos.senha}")
-//    private String senha;
-//    @Value("S{service.apitubo.protestos.documento}")
-//    private String documento;
-//    @Value("${service.apitubo.protestos.tipo-documento}")
-//    private String tipoDocumento;
+
 
     @Override
     public Connection getConnection() {
         if (this.config == null){
-//            config.setJdbcUrl( "jdbc:h2:mem:test;INIT=runscript from './sql/create.sql';runscript from '~/init.sql';" );
             this.config = new HikariConfig();
-            config.setJdbcUrl( "jdbc:h2:mem:testdb ");
-            config.setUsername( "sa" );
-            config.setPassword( "" );
+            config.setJdbcUrl( "jdbc:h2:mem:testdb;INIT=RUNSCRIPT FROM './sql/schema.sql'\\;RUNSCRIPT FROM './sql/data.sql'");
+            config.setUsername( "h2sa" );
+            config.setPassword( "admin" );
             config.addDataSourceProperty( "cachePrepStmts" , "true" );
             config.addDataSourceProperty( "prepStmtCacheSize" , "25" );
             config.addDataSourceProperty( "prepStmtCacheSqlLimit" , "2048" );

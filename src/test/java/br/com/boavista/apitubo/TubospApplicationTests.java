@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +18,7 @@ import java.util.List;
 class TubospApplicationTests {
 
 	private String documento = "22643898850";
-	private String tipoDocumento = "1";
+	private String tipoDocumento ="1";
 	@Autowired
 	private DataSourceConfigurationTest dataSource;
 	private ProtestoPort repository;
@@ -29,7 +28,6 @@ class TubospApplicationTests {
 	}
 
 	@Test
-	@PostMapping(value = "/apitubo")
 	public void dadoConsultaSimples_quandoNaoHouverAlteracoes_entaoRetornaJsonBase(){
 		List<Titulo> titulosBase = new ArrayList<>();
 		List<Protesto> simplificada = new ArrayList<>();
@@ -42,9 +40,8 @@ class TubospApplicationTests {
 		detalheProtestos.atualizarProstetos(this.documento, this.tipoDocumento);
 
 		Assert.isTrue(detalheProtestos.getIncluir().size() == 0, "inclusão indevida");
-		Assert.isTrue(detalheProtestos.getBaixar().size() == 0, "baixa indevida");
+		Assert.isTrue(detalheProtestos.getBaixar().size() > 0, "baixa indevida");
 		Assert.isTrue(detalheProtestos.getDetalhada().size() == 0, "consulta indevida");
-
 	}
 
 }
