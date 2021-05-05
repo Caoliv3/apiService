@@ -97,7 +97,7 @@ public class ProtestoUseCase {
         auditoria.setFonteConsulta(3);
         auditoria.setIdDetalhada(detalheProtestos.getId());
         auditoria.setQuantidadeConsulta(detalheProtestos.getDetalhada().size());
-        ConsultaDetalhadaResponse consultaDetalhada = consultas.fazerConsultaDetalhadaTest();
+        ConsultaDetalhadaResponse consultaDetalhada = consultas.fazerConsultaDetalhada(detalheProtestos.getDetalhada());
         if(consultaDetalhada.isSuccess()) {
             detalheProtestos.setIncluir(consultaDetalhada.getTitulos());
             json = detalheProtestos.getJson();

@@ -29,8 +29,7 @@ public class ConsultaSoapAdapter implements ConsultaPort {
     public ConsultaSimplificadaResponse fazerConsultaSimplifcada(String documento, String tipoDocumento) {
         this.documento = documento;
         this.tipoDocumento = tipoDocumento;
-//        return this.consultaFactory.getConsultaSimplificada().consultar(new ConsultaSimplificadaFiltro(documento, tipoDocumento));
-        return this.consultaFactory.getConsultaSimplificada().consultarTest(new ConsultaSimplificadaFiltro(documento, tipoDocumento));
+        return this.consultaFactory.getConsultaSimplificada().consultar(new ConsultaSimplificadaFiltro(documento, tipoDocumento));
     }
 
     @Override
@@ -62,11 +61,11 @@ public class ConsultaSoapAdapter implements ConsultaPort {
         return response;
     }
 
-    @Override
-    public ConsultaDetalhadaResponse fazerConsultaDetalhadaTest() {
-        ConsultaDetalhadaResponse response = new ConsultaDetalhadaResponse();
-        response.setSuccess(true);
-
+//    @Override
+//    public ConsultaDetalhadaResponse fazerConsultaDetalhadaTest() {
+//        ConsultaDetalhadaResponse response = new ConsultaDetalhadaResponse();
+//        response.setSuccess(true);
+//
 //        response.getTitulos().add(Titulo.builder()
 //                .tipo_documento_devedor("1")
 //                .documento_devedor("43131896884")
@@ -99,9 +98,9 @@ public class ConsultaSoapAdapter implements ConsultaPort {
 //                .data_vencimento("15-05-2017")
 //                .data_protesto("17-05-2017")
 //                .build());
-
-        return response;
-    }
+//
+//        return response;
+//    }
 
     public void fillFrom(ConsultaDetalhadaResponse response, ErrorResponse error) {
         response.setError(error);

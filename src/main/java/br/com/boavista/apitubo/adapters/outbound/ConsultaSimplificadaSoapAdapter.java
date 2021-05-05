@@ -44,48 +44,6 @@ public class ConsultaSimplificadaSoapAdapter implements ConsultaSimplificada {
 		return respostaConsultaSimplificada;
 	}
 
-	@Override
-	public ConsultaSimplificadaResponse consultarTest(ConsultaSimplificadaFiltro filtro) {
-		ConsultaSimplificadaResponse resposta = new ConsultaSimplificadaResponse();
-		resposta.setRetorno("Retorno sucesso");
-		resposta.setSuccess(true);
-		resposta.setDataConsulta("06-04-2021");
-		resposta.setSituacao("Sucesso");
-		resposta.setValorTotalProtestos("1200.00");
-		resposta.getProtestos().add(Protesto.builder()
-				.tipoDocumento(filtro.getTipoDocumento())
-				.documento(filtro.getDocumento())
-				.idCartorioBoavista("00996109005")
-				.quantidadeProtestos("7808")
-				.valorProtestado("34321961.85")
-				.build());
-		resposta.getProtestos().add(Protesto.builder()
-				.tipoDocumento(filtro.getTipoDocumento())
-				.documento(filtro.getDocumento())
-				.idCartorioBoavista("00996291016")
-				.quantidadeProtestos("4")
-				.valorProtestado("8164.12")
-				.build());
-		resposta.getProtestos().add(Protesto.builder()
-				.tipoDocumento(filtro.getTipoDocumento())
-				.documento(filtro.getDocumento())
-				.idCartorioBoavista("00996291024")
-				.quantidadeProtestos("2")
-				.valorProtestado("6081.30")
-				.build());
-		resposta.getProtestos().add(Protesto.builder()
-				.tipoDocumento(filtro.getTipoDocumento())
-				.documento(filtro.getDocumento())
-				.idCartorioBoavista("00996291032")
-				.quantidadeProtestos("6")
-				.valorProtestado("26591.20")
-				.build());
-
-		return  resposta;
-	}
-
-
-
 	public ConsultaSimplificadaResponse fillFrom(ConsultaSimplificadaResponse response, ConsultaSOAP consulta, ConsultaSimplificadaFiltro filtro){
 		ConsultaSimplificadaResponse retorno = response;
 		retorno.setRetorno(consulta.retorno);

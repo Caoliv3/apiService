@@ -2,8 +2,7 @@ package br.com.boavista.apitubo.models;
 
 import lombok.*;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

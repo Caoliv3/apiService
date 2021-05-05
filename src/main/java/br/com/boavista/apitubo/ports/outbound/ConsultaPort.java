@@ -11,6 +11,4 @@ public interface ConsultaPort {
     void setConsultaFactory(ConsultaFactory consultaFactory);
     ConsultaSimplificadaResponse fazerConsultaSimplifcada(String documento, String tipoDocumento);
     ConsultaDetalhadaResponse fazerConsultaDetalhada(List<ResumoProtestos> protestos);
-
-    ConsultaDetalhadaResponse fazerConsultaDetalhadaTest();
 }

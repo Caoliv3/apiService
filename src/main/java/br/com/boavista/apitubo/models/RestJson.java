@@ -1,13 +1,11 @@
 package br.com.boavista.apitubo.models;
 
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 public class RestJson {
 
     private int code = 0;
