@@ -1,0 +1,98 @@
+stages:
+  - maven
+  - verify
+  - build
+  - publish
+
+
+variables:
+  GITLAB_GROUP_ROOT: data
+  GCR_PROJECT: 'gcr.io/bvs-main-98cb/'
+
+maven:
+  stage: maven
+  image: maven:latest
+  cache:
+    paths:
+      - .m2/repository/
+      - target/
+  script:
+    - mvn clean package
+  artifacts:
+    paths:
+      - target/*.jar
+
+include:
+  - project: 'tech/architecture/devsecops'
+    file: 'stages/verify/code-quality.yml'
+  - project: 'tech/architecture/devsecops'
+    file: 'stages/verify/sast-java.yml'
+
+sast:
+  variables:
+    XML_REPORT_PATH: "target/"
+
+
+development:
+  stage: build
+  image: 'gcr.io/kaniko-project/executor:debug'
+  script:
+  - export APP_NAME=pa-api-tubo-sp-dev
+  - /kaniko/executor --context=$CI_PROJECT_DIR --dockerfile=$CI_PROJECT_DIR/Dockerfile --destination=$GCR_PROJECT$APP_NAME:$CI_COMMIT_SHORT_SHA --destination=$GCR_PROJECT$APP_NAME --destination=$GCR_PROJECT$APP_NAME:$CI_COMMIT_BRANCH
+  only:
+    - development
+
+homolog:
+  stage: build
+  image: 'gcr.io/kaniko-project/executor:debug'
+  script:
+  - export APP_NAME=pa-api-tubo-sp-hml
+  - /kaniko/executor --context=$CI_PROJECT_DIR --dockerfile=$CI_PROJECT_DIR/Dockerfile --destination=$GCR_PROJECT$APP_NAME:$CI_COMMIT_SHORT_SHA --destination=$GCR_PROJECT$APP_NAME --destination=$GCR_PROJECT$APP_NAME:$CI_COMMIT_BRANCH
+  only:
+    - homolog
+
+production:
+  stage: build
+  image: 'gcr.io/kaniko-project/executor:debug'
+  script:
+  - export APP_NAME=pa-api-tubo-sp-prod
+  - /kaniko/executor --context=$CI_PROJECT_DIR --dockerfile=$CI_PROJECT_DIR/Dockerfile --destination=$GCR_PROJECT$APP_NAME:$CI_COMMIT_SHORT_SHA --destination=$GCR_PROJECT$APP_NAME --destination=$GCR_PROJECT$APP_NAME:$CI_COMMIT_BRANCH
+  only:
+    - master
+
+publish_development:
+  stage: publish
+  image: 'gcr.io/bvs-main-98cb/bvs-publisher:0.2.0'
+  environment: development
+  script:
+    - export APP_NAME=pa-api-tubo-sp-dev
+    - export GKE_NAMESPACE=protesto-aquisicao-dev
+    - bvsci publish
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /development/
+      allow_failure: false
+
+publish_homolog:
+  stage: publish
+  image: 'gcr.io/bvs-main-98cb/bvs-publisher:0.2.0'
+  environment: homolog
+  script:
+    - export APP_NAME=pa-api-tubo-sp-hml
+    - export GKE_NAMESPACE=protesto-aquisicao-hml
+    - bvsci publish
+  rules:
+    - if: $CI_COMMIT_BRANCH == "homolog"
+      allow_failure: false
+      
+publish_production:
+  image: 'gcr.io/bvs-main-98cb/bvs-publisher:0.2.0'
+  stage: publish
+  environment: production
+  script:
+    - export APP_NAME=pa-api-tubo-sp-prod
+    - export GKE_NAMESPACE=protesto-aquisicao-prod
+    - bvsci set_image
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH == "production"
+      allow_failure: false
+      when: manual
